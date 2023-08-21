@@ -1,51 +1,49 @@
-const dataSource = "test.csv";
+const dataSource = "cyber-infraction_2022.csv";
 
-let csv = [
-    ["a/x/y", "900"],
-    ["a/x", "3000"],
-    ["a/z", "1000"],
-    ["b/x", "1500"]
-]
-    
-let data = buildHierarchy(csv);
-console.log(data)
+d3.csv(dataSource).then(createVisualization);
 
-const root = d3.hierarchy(data)
-  .sum(d => d.value);
+function createVisualization(dataPath) {
+  let data = buildHierarchy(dataPath);
+  const partition = data =>
+    d3.partition()
+      .padding(1)
+      .size([800, 600])(
+        d3.hierarchy(data)
+          .sum(d => d.value) 
+          .sort((a, b) => b.value - a.value)
+    )
 
-const partition = d3.partition()
-  .padding(1)
-  .size([800,600]);
+  const root = partition(data);
+  const svg = d3.select(graph)
+    .selectAll("rect.node")
+    .data(
+      root.descendants().filter(d => {
+        // Pas besoin de mettre le noeud racine
+        return d.depth;
+      }
+     ) 
+    )
+    .enter();
 
-partition(root);
+  // Ajout des rectangles
+  const path = svg.append("rect")
+    .classed("node", true)
+    .attr("x", d => d.x0)
+    .attr("y", d => d.y0)
+    .attr("width", d => d.x1 - d.x0)
+    .attr("height", d => d.y1 - d.y0)
+    .attr("fill", "blue");
+}
 
-
-console.log(root);
-
-
-d3.select(graph)
-  .selectAll("rect.node")
-  .data(root.descendants())
-  .enter()
-  .append("rect")
-  .classed("node", true)
-  .attr("x", d => d.x0)
-  .attr("y", d => d.y0)
-  .attr("width", d => d.x1 - d.x0)
-  .attr("height", d => d.y1 - d.y0)
-  .attr("fill", "blue");
-
-
-
-
-        
-
-function buildHierarchy(csv) {
+const minimumWidth = 100;
+function buildHierarchy(data) {
     // Transformation du csv en json dans un format hiérarchique
     const root = { name: "root", children: [] };
-    for (let i = 0; i < csv.length; i++) {
-      const sequence = csv[i][0];
-      const size = +csv[i][1];
+    for (let i = 0; i < data.length; i++) {
+      const sequence = data[i].nom;
+      const nbInfractions = +data[i].nbInfractions;
+      const nbResolved = +data[i].nbResolutions;
+
       const parts = sequence.split("/");
       let currentNode = root;
       for (let j = 0; j < parts.length; j++) {
@@ -62,7 +60,8 @@ function buildHierarchy(csv) {
               break;
             }
           }
-          // S'il n'y a pas de noeud descendant pour cette branche, une nouvelle branche est alors crée.
+          // S'il n'y a pas de noeud descendant pour cette branche, 
+          // une nouvelle branche est alors crée.
           if (!foundChild) {
             childNode = { name: nodeName, children: [] };
             children.push(childNode);
@@ -70,7 +69,7 @@ function buildHierarchy(csv) {
           currentNode = childNode;
         } else {
           // Une fois à la fin de la branche, on crée le noeud final.
-          childNode = { name: nodeName, value: size };
+          childNode = { name: nodeName, value: nbInfractions + minimumWidth, infractions: nbInfractions,  resolved: nbResolved };
           children.push(childNode);
         }
       }
