@@ -1,8 +1,18 @@
+/*
+  Une partie de ce code est inspirée de l'exemple suivant:
+  https://observablehq.com/@kerryrodden/sequences-icicle
+*/
+
 const dataSource = "cyber-infraction_2022.csv";
+const colors = ["#61afef", "#8ebd6b", "#e55561", "#e2b86b", "#bf68d9", "#cc9057", "#48b0bd"];
 
 d3.csv(dataSource).then(createVisualization);
 
 function createVisualization(dataPath) {
+  // Textes informatifs
+  const hierarchyTxt = d3.select("#title");
+  const pctTxt = d3.select("#pourcentage");
+
   let data = buildHierarchy(dataPath);
   const partition = data =>
     d3.partition()
@@ -32,7 +42,32 @@ function createVisualization(dataPath) {
     .attr("y", d => d.y0)
     .attr("width", d => d.x1 - d.x0)
     .attr("height", d => d.y1 - d.y0)
-    .attr("fill", "blue");
+    .attr("fill", d => colors[d.depth - 1])
+    // Ajout de l'affichage de la hierarchie au survol
+    .on("mouseenter", (_, d) => { 
+        const ancestors = d.ancestors().reverse().slice(1);
+        // Prendre la hierarchie du noeud (sans root)
+        const text = ancestors.map(d => "<span style='color: " + colors[d.depth - 1] + "'>" + d.data.name + "</span>")
+        .join(" > ");
+      // Mettre a jour le texte
+      title
+        .style("visibility", "visible")
+        .html(text);
+
+      // Mettre a jour le pourcentage si c'est une feuille
+      if (!d.children) {
+        let pct = 100 * d.data.resolved / d.data.infractions;
+        if (isNaN(pct)) {
+          pct = 0;
+        }
+
+        pctText
+          .style("visibility", "visible")
+          .html("Pourcentage de résolution: " + d3.format(".2f")(pct) + "%" );
+      } else {
+        pctText.style("visibility", "hidden");
+      }
+    });
 }
 
 const minimumWidth = 100;
