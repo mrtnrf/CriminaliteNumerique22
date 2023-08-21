@@ -45,29 +45,40 @@ function createVisualization(dataPath) {
     .attr("fill", d => colors[d.depth - 1])
     // Ajout de l'affichage de la hierarchie au survol
     .on("mouseenter", (_, d) => { 
-        const ancestors = d.ancestors().reverse().slice(1);
-        // Prendre la hierarchie du noeud (sans root)
-        const text = ancestors.map(d => "<span style='color: " + colors[d.depth - 1] + "'>" + d.data.name + "</span>")
-        .join(" > ");
-      // Mettre a jour le texte
-      title
-        .style("visibility", "visible")
-        .html(text);
-
-      // Mettre a jour le pourcentage si c'est une feuille
-      if (!d.children) {
-        let pct = 100 * d.data.resolved / d.data.infractions;
-        if (isNaN(pct)) {
-          pct = 0;
-        }
-
-        pctText
-          .style("visibility", "visible")
-          .html("Pourcentage de résolution: " + d3.format(".2f")(pct) + "%" );
-      } else {
-        pctText.style("visibility", "hidden");
-      }
+      const ancestors = d.ancestors().reverse().slice(1);
+      updateText(d, ancestors, hierarchyTxt, pctTxt);
+      path.attr("fill-opacity", node =>
+        ancestors.indexOf(node) >= 0 ? 1.0 : 0.3
+      );
     });
+
+  path.on("mouseleave", () => {
+    path.attr("fill-opacity", 1);
+    hierarchyTxt.style("visibility", "hidden");
+    pctTxt.style("visibility", "hidden");
+  });
+}
+
+function updateText(d, ancestors, title, pctText) {
+  // Prendre la hierarchie du noeud (sans root)
+  const text = ancestors.map(d => "<span style='color: " + colors[d.depth - 1] + "'>" + d.data.name + "</span>")
+    .join(" > ");
+  // Mettre a jour le texte
+  title
+    .style("visibility", "visible")
+    .html(text);
+
+  // Mettre a jour le pourcentage si c'est une feuille
+  if (!d.children) {
+    let pct = d3.format(".2f")(100 * d.data.resolved / d.data.infractions);
+    if (pct == "NaN") pct = "0.00";
+
+    pctText
+      .style("visibility", "visible")
+      .html("Pourcentage de résolution: " + pct + "%");
+  } else {
+    pctText.style("visibility", "hidden");
+  }
 }
 
 const minimumWidth = 100;
