@@ -39,10 +39,14 @@ function createVisualization(dataPath) {
     .enter();
 
   // Ajout des rectangles
+  const rootSize = root.y1 - root.y0;
   const path = svg.append("rect")
     .classed("node", true)
     .attr("x", d => d.x0)
-    .attr("y", d => d.y0)
+    .attr("y", d => {
+      // Comme nous n'affichons pas le noeud racine, on décale les rectangles
+      return d.y0 - rootSize;
+    })
     .attr("width", d => d.x1 - d.x0)
     .attr("height", d => d.y1 - d.y0)
     .attr("fill", d => colors[d.depth - 1])
