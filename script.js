@@ -13,6 +13,9 @@ function createVisualization(dataPath) {
   const hierarchyTxt = d3.select("#title");
   const pctTxt = d3.select("#pourcentage");
 
+  // Checkbox pour afficher le pourcentage de résolution
+  let checkbox = d3.select("#pctToggle");
+
   let data = buildHierarchy(dataPath);
   const partition = data =>
     d3.partition()
@@ -45,6 +48,10 @@ function createVisualization(dataPath) {
     .attr("fill", d => colors[d.depth - 1])
     // Ajout de l'affichage de la hierarchie au survol
     .on("mouseenter", (_, d) => { 
+      // Activer la fonction survol si la checkbox n'est pas cochée
+      if (checkbox.property("checked")) {
+        return;
+      }
       const ancestors = d.ancestors().reverse().slice(1);
       updateText(d, ancestors, hierarchyTxt, pctTxt);
       path.attr("fill-opacity", node =>
@@ -52,11 +59,54 @@ function createVisualization(dataPath) {
       );
     });
 
+  // Rectangle correspondant au pourcentage de résolution
+  const pctRect = svg.append("rect")
+    .classed("node", true)
+    .attr("x", d => d.x0)
+    .attr("y", d => {
+      let [resolved, infractions] = getResolvedAndInfractions(d);
+      let pct = resolved / infractions * 100;
+      // On met le rectangle en bas du rectangle parent
+      // et on le réduit en fonction du pourcentage
+      return d.y1 - pct / 100 * (d.y1 - d.y0);
+    })
+    .attr("width", d => d.x1 - d.x0)
+    .attr("height", d => {
+      let [resolved, infractions] = getResolvedAndInfractions(d);
+      let pct = resolved / infractions * 100;
+      return pct / 100 * (d.y1 - d.y0);
+    })
+    .attr("fill", d => colors[d.depth - 1])
+    .attr("visibility", "hidden");
+
+
+
   path.on("mouseleave", () => {
+    // Activer la fonction survol si la checkbox n'est pas cochée
+    if (checkbox.property("checked")) {
+      return;
+    }
     path.attr("fill-opacity", 1);
     hierarchyTxt.style("visibility", "hidden");
     pctTxt.style("visibility", "hidden");
   });
+
+  // Activation de la taille des rectangles en fonction du taux de résolution
+  checkbox.on("change", () => {
+      // Si la checkbox est cochée, on met a jour la taille des rectangles
+      // Sinon, on remet la taille par défaut
+      updateRectangle(path, pctRect, checkbox.property("checked"));
+    }
+  );
+  // Au début, on n'affiche pas le pourcentage
+  updateRectangle(path, pctRect, false);
+}
+
+function updateRectangle(path, pctRect, showPct) {
+  // Rendre tous les rectangles légèrement transparents si la checkbox est cochée
+  path.attr("fill-opacity", d => showPct ? 0.3 : 1.0);
+  // Afficher le rectangle correspondant au pourcentage de résolution
+  pctRect.attr("visibility", d => showPct ? "visible" : "hidden");
 }
 
 function updateText(d, ancestors, title, pctText) {
@@ -68,16 +118,24 @@ function updateText(d, ancestors, title, pctText) {
     .style("visibility", "visible")
     .html(text);
 
-  // Mettre a jour le pourcentage si c'est une feuille
-  if (!d.children) {
-    let pct = d3.format(".2f")(100 * d.data.resolved / d.data.infractions);
-    if (pct == "NaN") pct = "0.00";
+  // Calculer le pourcentage de résolution
+  let [resolved, infractions] = getResolvedAndInfractions(d);
+  let pct = resolved / infractions * 100;
 
-    pctText
-      .style("visibility", "visible")
-      .html("Pourcentage de résolution: " + pct + "%");
+  pctText
+    .style("visibility", "visible")
+    .html("Pourcentage de résolution: " + d3.format(".2f")(pct) + "%");
+}
+
+function getResolvedAndInfractions(d) {
+  if (d.children) {
+    // Si le noeud a des enfants, on additionne les résolutions et infractions recursivement
+    return d.children.reduce((acc, child) => {
+      let [resolved, infractions] = getResolvedAndInfractions(child);
+      return [acc[0] + resolved, acc[1] + infractions];
+    }, [0, 0]);
   } else {
-    pctText.style("visibility", "hidden");
+    return [d.data.resolved, d.data.infractions];
   }
 }
 
