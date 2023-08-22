@@ -9,6 +9,10 @@ const colors = ["#61afef", "#8ebd6b", "#e55561", "#e2b86b", "#bf68d9", "#cc9057"
 d3.csv(dataSource).then(createVisualization);
 
 function createVisualization(dataPath) {
+  // Le graph où sera affiché le diagramme
+  const graph = d3.select("#graph");
+  let [width, height] = [graph.node().clientWidth, graph.node().clientHeight];
+
   // Textes informatifs
   const hierarchyTxt = d3.select("#title");
   const pctTxt = d3.select("#pourcentage");
@@ -20,14 +24,14 @@ function createVisualization(dataPath) {
   const partition = data =>
     d3.partition()
       .padding(1)
-      .size([800, 600])(
+      .size([width, height])(
         d3.hierarchy(data)
           .sum(d => d.value) 
           .sort((a, b) => b.value - a.value)
     )
 
   const root = partition(data);
-  const svg = d3.select(graph)
+  const svg = graph
     .selectAll("rect.node")
     .data(
       root.descendants().filter(d => {
@@ -52,15 +56,19 @@ function createVisualization(dataPath) {
     .attr("fill", d => colors[d.depth - 1])
     // Ajout de l'affichage de la hierarchie au survol
     .on("mouseenter", (_, d) => { 
-      // Activer la fonction survol si la checkbox n'est pas cochée
-      if (checkbox.property("checked")) {
-        return;
-      }
       const ancestors = d.ancestors().reverse().slice(1);
       updateText(d, ancestors, hierarchyTxt, pctTxt);
-      path.attr("fill-opacity", node =>
-        ancestors.indexOf(node) >= 0 ? 1.0 : 0.3
-      );
+      // Afficher la hierarchie en surbrillance
+      if (!checkbox.property("checked")) {
+        path.attr("fill-opacity", node =>
+          ancestors.indexOf(node) >= 0 ? 1.0 : 0.3
+        );
+      } else {
+        // Si la checkbox est cochée, on affiche la hierarchie sur les rectangles de pourcentage
+        pctRect.attr("fill-opacity", node =>
+          ancestors.indexOf(node) >= 0 ? 1.0 : 0.3
+        );
+      }
     });
 
   // Rectangle correspondant au pourcentage de résolution
@@ -83,14 +91,13 @@ function createVisualization(dataPath) {
     .attr("fill", d => colors[d.depth - 1])
     .attr("visibility", "hidden");
 
-
-
   path.on("mouseleave", () => {
-    // Activer la fonction survol si la checkbox n'est pas cochée
-    if (checkbox.property("checked")) {
-      return;
+    // Reinitialiser l'affichage
+    if (!checkbox.property("checked")) {
+      path.attr("fill-opacity", 1);
+    } else {
+      pctRect.attr("fill-opacity", 1);
     }
-    path.attr("fill-opacity", 1);
     hierarchyTxt.style("visibility", "hidden");
     pctTxt.style("visibility", "hidden");
   });
@@ -102,8 +109,8 @@ function createVisualization(dataPath) {
       updateRectangle(path, pctRect, checkbox.property("checked"));
     }
   );
-  // Au début, on n'affiche pas le pourcentage
-  updateRectangle(path, pctRect, false);
+  // Il faut appeler la fonction une fois pour initialiser les rectangles
+  updateRectangle(path, pctRect, checkbox.property("checked"));
 }
 
 function updateRectangle(path, pctRect, showPct) {
