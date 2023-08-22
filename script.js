@@ -27,9 +27,9 @@ function createVisualization(dataPath) {
       .padding(1)
       .size([width, height])(
         d3.hierarchy(data)
-          .sum(d => d.value) 
+          .sum(d => d.value)
           .sort((a, b) => b.value - a.value)
-    )
+      )
 
   const root = partition(data);
   const svg = graph
@@ -39,7 +39,7 @@ function createVisualization(dataPath) {
         // Pas besoin de mettre le noeud racine
         return d.depth;
       }
-     ) 
+      )
     )
     .enter();
 
@@ -88,10 +88,10 @@ function createVisualization(dataPath) {
 
   // Activation de la taille des rectangles en fonction du taux de résolution
   checkbox.on("change", () => {
-      // Si la checkbox est cochée, on met a jour la taille des rectangles
-      // Sinon, on remet la taille par défaut
-      updateRectangle(path, pctRect, checkbox.property("checked"));
-    }
+    // Si la checkbox est cochée, on met a jour la taille des rectangles
+    // Sinon, on remet la taille par défaut
+    updateRectangle(path, pctRect, checkbox.property("checked"));
+  }
   );
   // Il faut appeler la fonction une fois pour initialiser les rectangles
   updateRectangle(path, pctRect, checkbox.property("checked"));
@@ -168,42 +168,42 @@ function getResolvedAndInfractions(d) {
 const minimumWidth = 100;
 // Partie reprise de l'exemple mentionné plus haut
 function buildHierarchy(data) {
-    // Transformation du csv en json dans un format hiérarchique
-    const root = { name: "root", children: [] };
-    for (let i = 0; i < data.length; i++) {
-      const sequence = data[i].nom;
-      const nbInfractions = +data[i].nbInfractions;
-      const nbResolved = +data[i].nbResolutions;
+  // Transformation du csv en json dans un format hiérarchique
+  const root = { name: "root", children: [] };
+  for (let i = 0; i < data.length; i++) {
+    const sequence = data[i].nom;
+    const nbInfractions = +data[i].nbInfractions;
+    const nbResolved = +data[i].nbResolutions;
 
-      const parts = sequence.split("/");
-      let currentNode = root;
-      for (let j = 0; j < parts.length; j++) {
-        const children = currentNode["children"];
-        const nodeName = parts[j];
-        let childNode = null;
-        if (j + 1 < parts.length) {
-          // Not yet at the end of the sequence; move down the tree.
-          let foundChild = false;
-          for (let k = 0; k < children.length; k++) {
-            if (children[k]["name"] == nodeName) {
-              childNode = children[k];
-              foundChild = true;
-              break;
-            }
+    const parts = sequence.split("/");
+    let currentNode = root;
+    for (let j = 0; j < parts.length; j++) {
+      const children = currentNode["children"];
+      const nodeName = parts[j];
+      let childNode = null;
+      if (j + 1 < parts.length) {
+        // Not yet at the end of the sequence; move down the tree.
+        let foundChild = false;
+        for (let k = 0; k < children.length; k++) {
+          if (children[k]["name"] == nodeName) {
+            childNode = children[k];
+            foundChild = true;
+            break;
           }
-          // S'il n'y a pas de noeud descendant pour cette branche, 
-          // une nouvelle branche est alors crée.
-          if (!foundChild) {
-            childNode = { name: nodeName, children: [] };
-            children.push(childNode);
-          }
-          currentNode = childNode;
-        } else {
-          // Une fois à la fin de la branche, on crée le noeud final.
-          childNode = { name: nodeName, value: nbInfractions + minimumWidth, infractions: nbInfractions,  resolved: nbResolved };
+        }
+        // S'il n'y a pas de noeud descendant pour cette branche, 
+        // une nouvelle branche est alors crée.
+        if (!foundChild) {
+          childNode = { name: nodeName, children: [] };
           children.push(childNode);
         }
+        currentNode = childNode;
+      } else {
+        // Une fois à la fin de la branche, on crée le noeud final.
+        childNode = { name: nodeName, value: nbInfractions + minimumWidth, infractions: nbInfractions, resolved: nbResolved };
+        children.push(childNode);
       }
     }
-    return root;
+  }
+  return root;
 }
