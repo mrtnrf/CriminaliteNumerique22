@@ -140,6 +140,7 @@ function getResolvedAndInfractions(d) {
 }
 
 const minimumWidth = 100;
+// Partie reprise de l'exemple mentionné plus haut
 function buildHierarchy(data) {
     // Transformation du csv en json dans un format hiérarchique
     const root = { name: "root", children: [] };
