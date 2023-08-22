@@ -6,20 +6,21 @@
 const dataSource = "cyber-infraction_2022.csv";
 const colors = ["#61afef", "#8ebd6b", "#e55561", "#e2b86b", "#bf68d9", "#cc9057", "#48b0bd"];
 
+// Le graph où sera affiché le diagramme
+const graph = d3.select("#graph");
+let [width, height] = [graph.node().clientWidth, graph.node().clientHeight];
+
+// Textes informatifs
+const hierarchyTxt = d3.select("#title");
+const pctTxt = d3.select("#pourcentage");
+
+// Checkbox pour afficher le pourcentage de résolution
+let checkbox = d3.select("#pctToggle");
+
+
 d3.csv(dataSource).then(createVisualization);
 
 function createVisualization(dataPath) {
-  // Le graph où sera affiché le diagramme
-  const graph = d3.select("#graph");
-  let [width, height] = [graph.node().clientWidth, graph.node().clientHeight];
-
-  // Textes informatifs
-  const hierarchyTxt = d3.select("#title");
-  const pctTxt = d3.select("#pourcentage");
-
-  // Checkbox pour afficher le pourcentage de résolution
-  let checkbox = d3.select("#pctToggle");
-
   let data = buildHierarchy(dataPath);
   const partition = data =>
     d3.partition()
@@ -55,21 +56,7 @@ function createVisualization(dataPath) {
     .attr("height", d => d.y1 - d.y0)
     .attr("fill", d => colors[d.depth - 1])
     // Ajout de l'affichage de la hierarchie au survol
-    .on("mouseenter", (_, d) => { 
-      const ancestors = d.ancestors().reverse().slice(1);
-      updateText(d, ancestors, hierarchyTxt, pctTxt);
-      // Afficher la hierarchie en surbrillance
-      if (!checkbox.property("checked")) {
-        path.attr("fill-opacity", node =>
-          ancestors.indexOf(node) >= 0 ? 1.0 : 0.3
-        );
-      } else {
-        // Si la checkbox est cochée, on affiche la hierarchie sur les rectangles de pourcentage
-        pctRect.attr("fill-opacity", node =>
-          ancestors.indexOf(node) >= 0 ? 1.0 : 0.3
-        );
-      }
-    });
+    .on("mouseenter", (_, d) => mouseenter(d, path, pctRect));
 
   // Rectangle correspondant au pourcentage de résolution
   const pctRect = svg.append("rect")
@@ -93,18 +80,11 @@ function createVisualization(dataPath) {
       return pct / 100 * (d.y1 - d.y0);
     })
     .attr("fill", d => colors[d.depth - 1])
-    .attr("visibility", "hidden");
+    .attr("visibility", "hidden")
+    .on("mouseenter", (_, d) => mouseenter(d, path, pctRect));
 
-  path.on("mouseleave", () => {
-    // Reinitialiser l'affichage
-    if (!checkbox.property("checked")) {
-      path.attr("fill-opacity", 1);
-    } else {
-      pctRect.attr("fill-opacity", 1);
-    }
-    hierarchyTxt.style("visibility", "hidden");
-    pctTxt.style("visibility", "hidden");
-  });
+  path.on("mouseleave", () => mouseleave(path, pctRect));
+  pctRect.on("mouseleave", () => mouseleave(path, pctRect));
 
   // Activation de la taille des rectangles en fonction du taux de résolution
   checkbox.on("change", () => {
@@ -143,6 +123,34 @@ function updateText(d, ancestors, title, pctText) {
   pctText
     .style("visibility", "visible")
     .html("Pourcentage de résolution: " + d3.format(".2f")(pct) + "%");
+}
+
+// Utilisatin de la souris
+function mouseleave(path, pctRect) {
+  // Reinitialiser l'affichage
+  if (!checkbox.property("checked")) {
+    path.attr("fill-opacity", 1);
+  } else {
+    pctRect.attr("fill-opacity", 1);
+  }
+  hierarchyTxt.style("visibility", "hidden");
+  pctTxt.style("visibility", "hidden");
+}
+
+function mouseenter(d, path, pctRect) {
+  const ancestors = d.ancestors().reverse().slice(1);
+  updateText(d, ancestors, hierarchyTxt, pctTxt);
+  // Afficher la hierarchie en surbrillance
+  if (!checkbox.property("checked")) {
+    path.attr("fill-opacity", node =>
+      ancestors.indexOf(node) >= 0 ? 1.0 : 0.3
+    );
+  } else {
+    // Si la checkbox est cochée, on affiche la hierarchie sur les rectangles de pourcentage
+    pctRect.attr("fill-opacity", node =>
+      ancestors.indexOf(node) >= 0 ? 1.0 : 0.3
+    );
+  }
 }
 
 function getResolvedAndInfractions(d) {
