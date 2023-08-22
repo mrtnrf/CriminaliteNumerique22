@@ -85,7 +85,11 @@ function createVisualization(dataPath) {
     .attr("width", d => d.x1 - d.x0)
     .attr("height", d => {
       let [resolved, infractions] = getResolvedAndInfractions(d);
-      let pct = resolved / infractions * 100;
+      var pct = resolved / infractions * 100;
+      // Vérifier la valeur du pourcentage
+      if (isNaN(pct)) {
+        pct = 0;
+      }
       return pct / 100 * (d.y1 - d.y0);
     })
     .attr("fill", d => colors[d.depth - 1])
@@ -131,8 +135,11 @@ function updateText(d, ancestors, title, pctText) {
 
   // Calculer le pourcentage de résolution
   let [resolved, infractions] = getResolvedAndInfractions(d);
-  let pct = resolved / infractions * 100;
-
+  var pct = resolved / infractions * 100;
+  // Vérifier la valeur du pourcentage
+  if (isNaN(pct)) {
+    pct = 0;
+  }
   pctText
     .style("visibility", "visible")
     .html("Pourcentage de résolution: " + d3.format(".2f")(pct) + "%");
