@@ -72,7 +72,7 @@ function createVisualization(dataPath) {
       let pct = resolved / infractions * 100;
       // On met le rectangle en bas du rectangle parent
       // et on le réduit en fonction du pourcentage
-      return d.y1 - pct / 100 * (d.y1 - d.y0);
+      return d.y1 - rootSize - pct / 100 * (d.y1 - d.y0);
     })
     .attr("width", d => d.x1 - d.x0)
     .attr("height", d => {
