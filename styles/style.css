@@ -1,0 +1,17 @@
+h1{
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+p {
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: justify;
+}
+
+g{
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body{
+    width: 90vw;
+    min-width: 800px;
+}

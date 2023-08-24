@@ -13,6 +13,7 @@ let [width, height] = [graph.node().clientWidth, graph.node().clientHeight];
 // Textes informatifs
 const hierarchyTxt = d3.select("#title");
 const pctTxt = d3.select("#pourcentage");
+const nombreInfra = d3.select("#nombre");
 
 // Checkbox pour afficher le pourcentage de résolution
 let checkbox = d3.select("#pctToggle");
@@ -104,7 +105,7 @@ function updateRectangle(path, pctRect, showPct) {
   pctRect.attr("visibility", d => showPct ? "visible" : "hidden");
 }
 
-function updateText(d, ancestors, title, pctText) {
+function updateText(d, ancestors, title, pctText, nombreInfra) {
   // Prendre la hierarchie du noeud (sans root)
   const text = ancestors.map(d => "<span style='color: " + colors[d.depth - 1] + "'>" + d.data.name + "</span>")
     .join(" > ");
@@ -123,6 +124,10 @@ function updateText(d, ancestors, title, pctText) {
   pctText
     .style("visibility", "visible")
     .html("Pourcentage de résolution: " + d3.format(".2f")(pct) + "%");
+
+  nombreInfra
+    .style("visibility", "visible")
+    .html("Nombre d'infraction: " + infractions);
 }
 
 // Utilisatin de la souris
@@ -135,11 +140,12 @@ function mouseleave(path, pctRect) {
   }
   hierarchyTxt.style("visibility", "hidden");
   pctTxt.style("visibility", "hidden");
+  nombreInfra.style("visibility", "hidden");
 }
 
 function mouseenter(d, path, pctRect) {
   const ancestors = d.ancestors().reverse().slice(1);
-  updateText(d, ancestors, hierarchyTxt, pctTxt);
+  updateText(d, ancestors, hierarchyTxt, pctTxt, nombreInfra);
   // Afficher la hierarchie en surbrillance
   if (!checkbox.property("checked")) {
     path.attr("fill-opacity", node =>

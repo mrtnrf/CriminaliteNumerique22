@@ -4,6 +4,12 @@
 
 La visualisation prend la forme d'un "sequences icicle" interactif qui, lorsque la souris est passé sur un rectangle affiche son "chemin", son nom et son taux de résolution. De plus, via un bouton il est possible de basculer sur une seconde vue qui affiche directement le taux de résolution de manière visuelle de l'ensemble de la visualisation. Finalement, nous avons choisi de présenter le résultat dans le même style qu'un article de presse en ligne. Le but est de réaliser quels crimes sont rapportés aux autorités compétantes et combien sont élucidés.
 
+Premier mode où l'on constate la repartition des infractions raportées.
+![Visualisation 1](img/visu1.png)
+
+Seconde mode où les rectangles sont plus ou moins remplis en fonction du taux de résolution.
+![Visualisation 2](img/visu2.png)
+
 ## Outils employés
 
 Nous avons employés la bibliothèque [d3.js](https://d3js.org/) pour créer notre visualisation.
