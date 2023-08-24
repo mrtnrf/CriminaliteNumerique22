@@ -32,7 +32,7 @@ Le code pour le bouton a été repris de ce [tutoriel](https://www.w3schools.com
 
 ## Contexte
 
-Cette visualisation a été réalisée dans le cadre du cours Visualisation de données de M. Isaac Pante. Le public visé est le suivant : les personnes étudiant le domaine, tels que, notamment, les policiers, avocats, juges, journalistes, etc. ou plus largement toute personne simplement curieuse d’en apprendre davantage sur ce sujet.
+Cette visualisation a été réalisée dans le cadre du cours "Visualisation de données" de M. Isaac Pante. Le public visé est le suivant : les personnes étudiant le domaine, tels que, notamment, les policiers, avocats, juges, journalistes, etc. ou plus largement toute personne simplement curieuse d’en apprendre davantage sur ce sujet.
 
 ## Auteurs
 

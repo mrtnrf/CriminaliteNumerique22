@@ -12,6 +12,14 @@ g{
 }
 
 body{
-    width: 90vw;
     min-width: 800px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5px;
+}
+
+.visu{
+    border-style: solid;
+    padding: 5px;
 }

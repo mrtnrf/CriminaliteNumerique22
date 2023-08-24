@@ -124,10 +124,10 @@ function updateText(d, ancestors, title, pctText, nombreInfra) {
   pctText
     .style("visibility", "visible")
     .html("Pourcentage de résolution: " + d3.format(".2f")(pct) + "%");
-
+  
   nombreInfra
     .style("visibility", "visible")
-    .html("Nombre d'infraction: " + infractions);
+    .html("Nombre d'infractions: " + d3.format(",.2s")(infractions));
 }
 
 // Utilisatin de la souris
