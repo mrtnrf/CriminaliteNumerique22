@@ -2,7 +2,7 @@
 
 ## Description
 
-La visualisation prend la forme d'un "sequences icicle" interactif qui, lorsque la souris est passée sur un rectangle, affiche son "chemin", son nom et son taux de résolution. De plus, via un bouton il est possible de basculer sur une seconde vue qui affiche directement le taux de résolution de manière visuelle de l'ensemble de la visualisation. Finalement, nous avons choisi de présenter le résultat dans le même style qu'un article de presse en ligne. Le but est de réaliser quels crimes sont rapportés aux autorités compétentes et combien sont élucidés.
+La visualisation prend la forme d'un "sequences icicle" interactif qui, lorsque la souris est passée sur un rectangle, affiche son "chemin", son nom, son taux de résolution et le nombre d'infractions. De plus, via un bouton il est possible de basculer sur une seconde vue qui affiche directement le taux de résolution de manière visuelle de l'ensemble de la visualisation. Finalement, nous avons choisi de présenter le résultat dans le même style qu'un article de presse en ligne. Le but est de réaliser quels crimes sont rapportés aux autorités compétentes et combien sont élucidés.
 
 Voici à quoi ressemble la visualisation lorsque l'on ouvre la page.
 ![Visualisation 1](img/visu0.png)
