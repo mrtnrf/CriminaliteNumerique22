@@ -6,7 +6,7 @@
 const dataSource = "cyber-infraction_2022.csv";
 const colors = ["#61afef", "#8ebd6b", "#e55561", "#e2b86b", "#bf68d9", "#cc9057", "#48b0bd"];
 
-// Le graph où sera affiché le diagramme
+// Le graphe où sera affiché le diagramme
 const graph = d3.select("#graph");
 let [width, height] = [graph.node().clientWidth, graph.node().clientHeight];
 
@@ -56,7 +56,7 @@ function createVisualization(dataPath) {
     .attr("width", d => d.x1 - d.x0)
     .attr("height", d => d.y1 - d.y0)
     .attr("fill", d => colors[d.depth - 1])
-    // Ajout de l'affichage de la hierarchie au survol
+    // Ajout de l'affichage de la hiérarchie au survol
     .on("mouseenter", (_, d) => mouseenter(d, path, pctRect));
 
   // Rectangle correspondant au pourcentage de résolution
@@ -67,7 +67,7 @@ function createVisualization(dataPath) {
       let [resolved, infractions] = getResolvedAndInfractions(d);
       let pct = resolved / infractions * 100;
       // On met le rectangle en bas du rectangle parent
-      // et on le réduit en fonction du pourcentage
+      // Et on le réduit en fonction du pourcentage
       return d.y1 - rootSize - pct / 100 * (d.y1 - d.y0);
     })
     .attr("width", d => d.x1 - d.x0)
@@ -89,7 +89,7 @@ function createVisualization(dataPath) {
 
   // Activation de la taille des rectangles en fonction du taux de résolution
   checkbox.on("change", () => {
-    // Si la checkbox est cochée, on met a jour la taille des rectangles
+    // Si la checkbox est cochée, on met à jour la taille des rectangles
     // Sinon, on remet la taille par défaut
     updateRectangle(path, pctRect, checkbox.property("checked"));
   }
@@ -106,10 +106,10 @@ function updateRectangle(path, pctRect, showPct) {
 }
 
 function updateText(d, ancestors, title, pctText, nombreInfra) {
-  // Prendre la hierarchie du noeud (sans root)
+  // Prendre la hiérarchie du noeud (sans root)
   const text = ancestors.map(d => "<span style='color: " + colors[d.depth - 1] + "'>" + d.data.name + "</span>")
     .join(" > ");
-  // Mettre a jour le texte
+  // Mettre à jour le texte
   title
     .style("visibility", "visible")
     .html(text);
@@ -130,9 +130,9 @@ function updateText(d, ancestors, title, pctText, nombreInfra) {
     .html("Nombre d'infractions: " + d3.format(",.2s")(infractions));
 }
 
-// Utilisatin de la souris
+// Utilisation de la souris
 function mouseleave(path, pctRect) {
-  // Reinitialiser l'affichage
+  // Réinitialiser l'affichage
   if (!checkbox.property("checked")) {
     path.attr("fill-opacity", 1);
   } else {
@@ -146,13 +146,13 @@ function mouseleave(path, pctRect) {
 function mouseenter(d, path, pctRect) {
   const ancestors = d.ancestors().reverse().slice(1);
   updateText(d, ancestors, hierarchyTxt, pctTxt, nombreInfra);
-  // Afficher la hierarchie en surbrillance
+  // Afficher la hiérarchie en surbrillance
   if (!checkbox.property("checked")) {
     path.attr("fill-opacity", node =>
       ancestors.indexOf(node) >= 0 ? 1.0 : 0.3
     );
   } else {
-    // Si la checkbox est cochée, on affiche la hierarchie sur les rectangles de pourcentage
+    // Si la checkbox est cochée, on affiche la hiérarchie sur les rectangles de pourcentage
     pctRect.attr("fill-opacity", node =>
       ancestors.indexOf(node) >= 0 ? 1.0 : 0.3
     );
@@ -161,7 +161,7 @@ function mouseenter(d, path, pctRect) {
 
 function getResolvedAndInfractions(d) {
   if (d.children) {
-    // Si le noeud a des enfants, on additionne les résolutions et infractions recursivement
+    // Si le noeud a des enfants, on additionne les résolutions et infractions récursivement
     return d.children.reduce((acc, child) => {
       let [resolved, infractions] = getResolvedAndInfractions(child);
       return [acc[0] + resolved, acc[1] + infractions];
@@ -188,7 +188,7 @@ function buildHierarchy(data) {
       const nodeName = parts[j];
       let childNode = null;
       if (j + 1 < parts.length) {
-        // Not yet at the end of the sequence; move down the tree.
+        // Not yet at the end of the sequence; move down the tree
         let foundChild = false;
         for (let k = 0; k < children.length; k++) {
           if (children[k]["name"] == nodeName) {
@@ -198,14 +198,14 @@ function buildHierarchy(data) {
           }
         }
         // S'il n'y a pas de noeud descendant pour cette branche, 
-        // une nouvelle branche est alors crée.
+        // une nouvelle branche est alors créée
         if (!foundChild) {
           childNode = { name: nodeName, children: [] };
           children.push(childNode);
         }
         currentNode = childNode;
       } else {
-        // Une fois à la fin de la branche, on crée le noeud final.
+        // Une fois à la fin de la branche, on crée le noeud final
         childNode = { name: nodeName, value: nbInfractions + minimumWidth, infractions: nbInfractions, resolved: nbResolved };
         children.push(childNode);
       }
