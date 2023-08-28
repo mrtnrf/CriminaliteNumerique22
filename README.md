@@ -25,7 +25,7 @@ Vous pouvez retrouver les données brutes au format Excel via ce [lien](https://
 
 Nous avons décidé de nous concentrer sur l'année 2022, mais la base de données contient également les statistiques des années 2020 et 2021.
 
-Dans un premier temps, nous les avons retravailler dans Excel puis exporter au format csv. Afin de faciliter la suite, le csv suit la structure suivante : <code>nom</code> où l'on a séparé les titres, sous-titres et sous-sous-titres à l'aide d'un <code>/</code>, viennent ensuite le <code>nbInfractions</code> et enfin, le <code>nbResolutions</code>.
+Dans un premier temps, nous les avons retravaillées dans Excel puis exporter au format csv. Afin de faciliter la suite, le csv suit la structure suivante : <code>nom</code> où l'on a séparé les titres, sous-titres et sous-sous-titres à l'aide d'un <code>/</code>, viennent ensuite le <code>nbInfractions</code> et enfin, le <code>nbResolutions</code>.
 
 ## Autres références
 
